@@ -4,13 +4,18 @@ class Grid:
     Args:
         r (int): The number of a row that includes the grid.
         c (int): The number of a column that includes the grid.
+        state (str): The state of a disk on the grid. If the grid has no
+            disks, this argument takes 'none'. Otherwise, 'dark' for a disk
+            with the dark side, and 'light' for that with the light side.
+            Defaults to 'none'.
 
     Attributes:
         position (dict[str, int]): The position of the grid on the board.
             Consists of the row number and the column number.
+        state (str): The state of a disk on the grid.
 
     """
-    def __init__(self, r: int, c: int) -> None:
+    def __init__(self, r: int, c: int, state: str = "none") -> None:
         position = {"row": r, "column": c}
         for key in position:
             value = position.get(key)
@@ -18,6 +23,15 @@ class Grid:
                 raise TypeError(
                     f"'{key[0]}' must be an integer: {repr(value)}")
         self.position = position
+
+        states_of_disk = ["none", "dark", "light"]
+        if not isinstance(state, str):
+            raise TypeError(f"'state' must be a string: {repr(state)}")
+        if state not in states_of_disk:
+            raise ValueError(
+                "Unsupported value. The value of 'state' must be any one of "
+                f"{', '.join(states_of_disk)}: {repr(state)}")
+        self.state = state
 
 
 class Board:
