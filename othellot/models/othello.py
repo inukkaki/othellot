@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 class Grid:
     """Defines a grid that composes a board.
 
@@ -11,8 +14,11 @@ class Grid:
 
     Attributes:
         position (dict[str, int]): The position of the grid on the board.
-            Consists of the row number and the column number.
+            Consists of the row number and the column number. Alias ``pos``.
         state (str): The state of a disk on the grid.
+        neighbors (dict[tuple[int, int], Grid]): Stores the pointer to each
+            neighbor grid. This dictionary makes each pointer correspond to
+            the neighbor grid's relative position.
 
     """
     def __init__(self, r: int, c: int, state: str = "none") -> None:
@@ -22,7 +28,7 @@ class Grid:
             if not isinstance(value, int):
                 raise TypeError(
                     f"'{key[0]}' must be an integer: {repr(value)}")
-        self.position = position
+        self.pos = self.position = position
 
         states_of_disk = ["none", "dark", "light"]
         if not isinstance(state, str):
@@ -32,6 +38,24 @@ class Grid:
                 "Unsupported value. The value of 'state' must be any one of "
                 f"{', '.join(states_of_disk)}: {repr(state)}")
         self.state = state
+
+        self.neighbors = {}
+
+    def add_neighbor(self, neighbor: Grid) -> None:
+        """Adds a neighbor grid to the dictionary ``neighbors``.
+
+        The neighbor grid instance is paired with its relative position. The
+        former is a value, and the latter is a key.
+
+        Args:
+            neighbor: A neighbor grid instance. It is allowed no matter if
+                it does not technically border the grid.
+
+        """
+        relative_position = (
+            neighbor.pos.get("row") - self.pos.get("row"),
+            neighbor.pos.get("column") - self.pos.get("column"))
+        self.neighbors[relative_position] = neighbor
 
 
 class Board:
