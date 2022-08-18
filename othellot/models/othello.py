@@ -48,8 +48,8 @@ class Grid:
         former is a value, and the latter is a key.
 
         Args:
-            neighbor: A neighbor grid instance. It is allowed no matter if
-                it does not technically border the grid.
+            neighbor: A neighbor grid instance. It is allowed no matter if it
+                does not technically border the grid.
 
         """
         relative_position = (
