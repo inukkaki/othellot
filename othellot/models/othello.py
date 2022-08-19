@@ -4,21 +4,11 @@ from __future__ import annotations
 class Grid:
     """Defines a grid that composes a board.
 
-    Args:
-        r (int): The number of a row that includes the grid.
-        c (int): The number of a column that includes the grid.
-        state (str): The state of a disk on the grid. If the grid has no
-            disks, this argument takes 'none'. Otherwise, 'dark' for a disk
-            with the dark side, and 'light' for that with the light side.
-            Defaults to 'none'.
+    The grid is arranged in a reticular pattern. A disk sits on the grid,
+    and its state depends on the value of ``state``, which is an attribute
+    of the grid.
 
-    Attributes:
-        position (dict[str, int]): The position of the grid on the board.
-            Consists of the row number and the column number. Alias ``pos``.
-        state (str): The state of a disk on the grid.
-        neighbors (dict[tuple[int, int], Grid]): Stores the pointer to each
-            neighbor grid. This dictionary makes each pointer correspond to
-            the neighbor grid's relative position.
+    The grid can access its neighbor grids through ``neighbors``.
 
     """
     def __init__(self, r: int, c: int, state: str = "none") -> None:
@@ -42,16 +32,17 @@ class Grid:
         self.neighbors = {}
 
     def add_neighbor(self, neighbor: Grid) -> None:
-        """Adds a neighbor grid to the dictionary ``neighbors``.
+        """Adds a neighbor grid to ``neighbors``.
 
-        The neighbor grid instance is paired with its relative position. The
-        former is a value, and the latter is a key.
-
-        Args:
-            neighbor: A neighbor grid instance. It is allowed no matter if it
-                does not technically border the grid.
+        The dictionary pairs the instance of the neighbor grid with its
+        relative position. The former is a value, and the latter is a key. The
+        neighbor grid does not necessarily border this grid.
 
         """
+        if not isinstance(neighbor, Grid):
+            raise TypeError(
+                f"'neighbor' must be an instance of Grid: {repr(neighbor)}")
+
         relative_position = (
             neighbor.pos.get("row") - self.pos.get("row"),
             neighbor.pos.get("column") - self.pos.get("column"))
@@ -59,18 +50,11 @@ class Grid:
 
 
 class Board:
-    """Defines a board to play Othello.
+    """Defines a board to have games.
 
-    Args:
-        width (int): The width of the board. The number of columns. A
-            positive integer is only allowed.
-        height (int): The height of the board. The number of rows. A
-            positive integer is only allowed.
-
-    Attributes:
-        width (int): The width of the board. The number of columns.
-        height (int): The height of the board. The number of rows.
-        grids (list[list[Grid]]): A two-dimensional array of grids.
+    The board controls its grids through ``grids`` attribute. It is a two-
+    dimensional array of grids, and its size is determined by ``width`` and
+    ``height``.
 
     """
     def __init__(self, width: int, height: int) -> None:
