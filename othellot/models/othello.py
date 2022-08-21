@@ -11,13 +11,14 @@ class Grid:
     The grid can access its neighbor grids through ``neighbors``.
 
     """
-    def __init__(self, r: int, c: int, state: str = "none") -> None:
-        position = {"row": r, "column": c}
+    def __init__(self, row_number: int, column_number: int,
+                 state: str = "none") -> None:
+        position = {"row": row_number, "column": column_number}
         for key in position:
             value = position.get(key)
             if not isinstance(value, int):
                 raise TypeError(
-                    f"'{key[0]}' must be an integer: {repr(value)}")
+                    f"'{key}_number' must be an integer: {repr(value)}")
         self.pos = self.position = position
 
         states_of_disk = ["none", "dark", "light"]
@@ -43,9 +44,10 @@ class Grid:
             raise TypeError(
                 f"'neighbor' must be an instance of Grid: {repr(neighbor)}")
 
-        relative_position = (
-            neighbor.pos.get("row") - self.pos.get("row"),
-            neighbor.pos.get("column") - self.pos.get("column"))
+        n_row, n_col = neighbor.pos.values()
+        s_row, s_col = self.pos.values()
+        relative_position = (n_row - s_row, n_col - s_col)
+
         self.neighbors[relative_position] = neighbor
 
 
@@ -58,6 +60,8 @@ class Board:
 
     """
     def __init__(self, width: int, height: int) -> None:
+        self.origin = {"row": 0, "column": 0}
+
         size = {"width": width, "height": height}
         for key in size:
             value = size.get(key)
@@ -70,10 +74,12 @@ class Board:
         self.width = size.get("width")
         self.height = size.get("height")
 
+        o_row, o_col = self.origin.values()
+
         self.grids = []
-        for r in range(0, self.height):
+        for i in range(o_row, self.height - o_row):
             row = []
-            for c in range(0, self.width):
-                grid = Grid(r, c)
+            for j in range(o_col, self.width - o_col):
+                grid = Grid(i, j)
                 row.append(grid)
             self.grids.append(row)
