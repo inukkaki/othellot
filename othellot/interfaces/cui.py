@@ -1,6 +1,46 @@
 from othellot.models.othello import Board
 
 
+class Cursor:
+    """Defines a controllable cursor.
+
+    This cursor can access a board, and a player controls a game using it.
+
+    """
+    def __init__(self, board: Board, row_number: int = 0,
+                 column_number: int = 0) -> None:
+        if not isinstance(board, Board):
+            raise TypeError(
+                f"'board' must be an instance of Board: {repr(board)}")
+        self.board = board
+
+        position = {"row": row_number, "column": column_number}
+        for key in position:
+            value = position.get(key)
+            if not isinstance(value, int):
+                raise TypeError(
+                    f"'{key}_number' must be an integer: {repr(value)}")
+        self.pos = self.position = position
+        self.clamp_itself_within_board()
+
+    def clamp_itself_within_board(self) -> None:
+        """Clamps this cursor within the board.
+
+        This function clamps this cursor's position within the range of the
+        board. The 'range' here means the bounding box defined by both the size
+        of the board and its origin.
+
+        """
+        clamp = lambda x, minimum, maximum: max(minimum, min(x, maximum))
+
+        c_row, c_col = self.pos.values()
+        o_row, o_col = self.board.origin.values()
+        b_width, b_height = self.board.width, self.board.height
+
+        self.pos["row"] = clamp(c_row, o_row, b_height - o_row - 1)
+        self.pos["column"] = clamp(c_col, o_col, b_width - o_col - 1)
+
+
 def convert_board_into_str(board: Board) -> str:
     """Converts an instance of Board into a string."""
     if not isinstance(board, Board):
@@ -68,7 +108,7 @@ def colored_str(packed_str: str | list[str]) -> str:
         try:
             value = str(mapping[key])
         except KeyError:
-            raise ValueError(f"Unsupported value: {repr(key)}")
+            raise ValueError(f"Unsupported value: {repr(key)}") from None
         properties.append(value)
     reset_codes = [str(mapping["default"]), str(mapping["bg_default"])]
 

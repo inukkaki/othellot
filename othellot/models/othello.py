@@ -33,7 +33,7 @@ class Grid:
         self.neighbors = {}
 
     def add_neighbor(self, neighbor: Grid) -> None:
-        """Adds a neighbor grid to ``neighbors``.
+        """Adds a neighbor grid to this grid's list.
 
         The dictionary pairs the instance of the neighbor grid with its
         relative position. The former is a value, and the latter is a key. The
@@ -52,7 +52,7 @@ class Grid:
 
 
 class Board:
-    """Defines a board to have games.
+    """Defines a board to have a game.
 
     The board controls its grids through ``grids`` attribute. It is a two-
     dimensional array of grids, and its size is determined by ``width`` and
