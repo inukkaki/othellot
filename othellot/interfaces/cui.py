@@ -41,24 +41,33 @@ class Cursor:
         self.pos["column"] = clamp(c_col, o_col, b_width - o_col - 1)
 
 
-def convert_board_into_str(board: Board) -> str:
+def convert_board_into_str(board: Board, cursor: Cursor) -> str:
     """Converts an instance of Board into a string."""
     if not isinstance(board, Board):
         raise TypeError(f"'board' must be an instance of Board: {repr(board)}")
+    if not isinstance(cursor, Cursor):
+        raise TypeError(
+            f"'cursor' must be an instance of Cursor: {repr(cursor)}")
 
     mapping = {
         "none": [".", "blue"], "dark": ["D", "black"], "light": ["L", "white"],
         "unknown": ["?", "yellow"]
         }
 
+    c_row, c_col = cursor.pos.values()
+
     product = ""
     for i in range(0, board.height):
         for j in range(0, board.width):
             grid = board.grids[i][j]
             try:
-                packed_str = mapping[grid.state]
+                packed_str = mapping[grid.state].copy()
             except KeyError:
-                packed_str = mapping.get("unknown")
+                packed_str = mapping.get("unknown").copy()
+
+            if (c_row, c_col) == (i, j):
+                packed_str.append("bg_white")
+
             product += colored_str(packed_str)
             product += " "
         product += "\n"
