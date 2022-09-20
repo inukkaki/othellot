@@ -119,7 +119,7 @@ def colored_str(packed_str: str | list[str]) -> str:
         except KeyError:
             raise ValueError(f"Unsupported value: {repr(key)}") from None
         properties.append(value)
-    reset_codes = [str(mapping["default"]), str(mapping["bg_default"])]
+    reset_codes = [str(mapping.get("default")), str(mapping.get("bg_default"))]
 
     prefix = "\033["
     suffix = "m"
