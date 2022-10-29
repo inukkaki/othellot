@@ -2,7 +2,7 @@ import sys
 
 
 def main() -> int:
-    """Main function."""
+    """The main function."""
     print("Meow meow.")
     return 0
 
