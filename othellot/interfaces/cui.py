@@ -5,6 +5,7 @@ class Cursor:
     """Defines a controllable cursor.
 
     This cursor can access a board, and a player controls a game using it.
+    It is impossible for this cursor to be located out of the board.
 
     """
     def __init__(self, board: Board, row_number: int = 0,
@@ -42,7 +43,13 @@ class Cursor:
 
 
 def convert_board_into_str(board: Board, cursor: Cursor) -> str:
-    """Converts an instance of Board into a string."""
+    """Converts an instance of Board into a string.
+
+    This function assigns each grid of the board, including a cursor, to a
+    single character decorated by escape sequences. They are concatenated
+    with spaces, returned as a representation of the board by this function.
+
+    """
     if not isinstance(board, Board):
         raise TypeError(f"'board' must be an instance of Board: {repr(board)}")
     if not isinstance(cursor, Cursor):
