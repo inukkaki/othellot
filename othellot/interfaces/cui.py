@@ -1,3 +1,5 @@
+import os
+
 from othellot.models.othello import Board
 
 
@@ -40,6 +42,12 @@ class Cursor:
 
         self.pos["row"] = clamp(c_row, o_row, b_height - o_row - 1)
         self.pos["column"] = clamp(c_col, o_col, b_width - o_col - 1)
+
+
+def clear_console() -> None:
+    """Clears the console."""
+    command = "cls" if os.name == "nt" else "clear"
+    os.system(command)
 
 
 def convert_board_into_str(board: Board, cursor: Cursor) -> str:
