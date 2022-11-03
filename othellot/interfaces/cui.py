@@ -83,41 +83,28 @@ def convert_board_into_str(board: Board, cursor: Cursor) -> str:
             if (c_row, c_col) == (i, j):
                 packed_str.append("bg_white")
 
-            product += colored_str(packed_str)
+            text = packed_str.pop(0)
+            colors = packed_str
+
+            product += colored_str(text, *colors)
             product += " "
         product += "\n"
 
     return product
 
 
-def colored_str(packed_str: str | list[str]) -> str:
+def colored_str(text: object, *colors: str) -> str:
     """Colors a string by using ANSI escape sequences.
 
-    The first item of ``packed_str`` is handled as a string that is supposed
-    to be colored, and succeeding items are the color configuration of the
-    string. It is possible to pass as many colors as desired, but latest
-    ones take priority.
+    This function converts ``text`` into a string and gives color to it. The
+    color configuration is provided by ``colors``. It is possible to pass as
+    many colors as desired, but later ones take priority.
 
     """
-    if isinstance(packed_str, str):
-        return packed_str
-    if not isinstance(packed_str, list):
-        raise TypeError(
-            "'packed_str' must be a string or a list of strings: "
-            f"{repr(packed_str)}")
-
-    try:
-        text = packed_str[0]
-    except IndexError:
-        raise ValueError(
-            "'packed_str' must have one or more string items. The first item "
-            "is a string to color: " f"{repr(packed_str)}") from None
-    if not isinstance(text, str):
-        raise TypeError(
-            "The first item of 'packed_str' must be a string; it is a string "
-            "to color: " f"{repr(packed_str)}")
-    if len(packed_str) == 1:
-        return text
+    if len(colors) == 0:
+        if isinstance(text, str):
+            return text
+        return repr(text)
 
     mapping = {
         "black": 30, "red": 31, "green": 32, "yellow": 33, "blue": 34,
@@ -126,22 +113,23 @@ def colored_str(packed_str: str | list[str]) -> str:
         "bg_magenta": 45, "bg_cyan": 46, "bg_white": 47, "bg_default": 49
         }
 
-    properties = []
-    for index in range(1, len(packed_str)):
-        key = packed_str[index]
+    color_codes = []
+    for key in colors:
+        if not isinstance(key, str):
+            raise TypeError(f"'colors' must be passed strings: {repr(key)}")
         try:
             value = str(mapping[key])
         except KeyError:
             raise ValueError(f"Unsupported value: {repr(key)}") from None
-        properties.append(value)
+        color_codes.append(value)
     reset_codes = [str(mapping.get("default")), str(mapping.get("bg_default"))]
 
     prefix = "\033["
     suffix = "m"
-
     delimiter = ";"
-    head = prefix + delimiter.join(properties) + suffix
-    bottom = prefix + delimiter.join(reset_codes) + suffix
 
+    head = prefix + delimiter.join(color_codes) + suffix
+    bottom = prefix + delimiter.join(reset_codes) + suffix
     product = head + text + bottom
+
     return product
