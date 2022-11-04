@@ -101,10 +101,10 @@ def colored_str(text: object, *colors: str) -> str:
     many colors as desired, but later ones take priority.
 
     """
+    converted_text = text if isinstance(text, str) else repr(text)
+
     if len(colors) == 0:
-        if isinstance(text, str):
-            return text
-        return repr(text)
+        return converted_text
 
     mapping = {
         "black": 30, "red": 31, "green": 32, "yellow": 33, "blue": 34,
@@ -130,6 +130,6 @@ def colored_str(text: object, *colors: str) -> str:
 
     head = prefix + delimiter.join(color_codes) + suffix
     bottom = prefix + delimiter.join(reset_codes) + suffix
-    product = head + text + bottom
+    product = head + converted_text + bottom
 
     return product
