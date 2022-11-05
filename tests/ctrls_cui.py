@@ -14,7 +14,7 @@ def main() -> int:
     """Replicates the actual game flow."""
     clear_console()
 
-    # determine the size of a board
+    # Determine the size of a board
     b_size = {"width": 8, "height": 8}
     for key in b_size:
         while True:
@@ -32,11 +32,11 @@ def main() -> int:
             b_size[key] = value
             break
 
-    # make instances
+    # Make instances
     board = Board(**b_size)
     cursor = Cursor(board)
 
-    # display the board
+    # Display the board
     clear_console()
     print(convert_board_into_str(board, cursor))
 
