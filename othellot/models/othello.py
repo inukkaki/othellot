@@ -4,11 +4,11 @@ from __future__ import annotations
 class Grid:
     """Defines a grid that composes a board.
 
-    The grid is arranged in a reticular pattern. A disk sits on the grid,
-    and its state depends on the value of ``state``, which is an attribute
-    of the grid.
+    This grid is arranged in a reticular pattern. A disk sits on this grid,
+    and its state depends on the value of ``state``, which is allowed to
+    receive only specific words.
 
-    The grid can access its neighbor grids through ``neighbors``.
+    This grid can access its neighbor grids through ``neighbors``.
 
     """
     def __init__(self, row_number: int, column_number: int,
@@ -20,17 +20,24 @@ class Grid:
                 raise TypeError(
                     f"'{key}_number' must be an integer: {repr(value)}")
         self.pos = self.position = position
+        self._state = self.state = state
+        self.neighbors = {}
 
-        states_of_disk = ["none", "dark", "light"]
+    @property
+    def state(self) -> str:
+        """The state of a disk sitting on this grid."""
+        return self._state
+
+    @state.setter
+    def state(self, state: str) -> str:
         if not isinstance(state, str):
             raise TypeError(f"'state' must be a string: {repr(state)}")
-        if state not in states_of_disk:
+        states_of_disks = ["none", "dark", "light"]
+        if state not in states_of_disks:
             raise ValueError(
                 "Unsupported value. The value of 'state' must be any one of "
-                f"{', '.join(states_of_disk)}: {repr(state)}")
-        self.state = state
-
-        self.neighbors = {}
+                f"{', '.join(states_of_disks)}: {repr(state)}")
+        self._state = state
 
     def add_neighbor(self, neighbor: Grid) -> None:
         """Adds a neighbor grid to this grid's list.
@@ -54,9 +61,9 @@ class Grid:
 class Board:
     """Defines a board to have a game.
 
-    The board controls its grids through ``grids`` attribute. It is a two-
-    dimensional array of grids, and its size is determined by ``width`` and
-    ``height``.
+    This board controls its grids through ``grids`` attribute. It can be
+    used as a two-dimensional array of grids, and its size is determined by
+    ``width`` and ``height``.
 
     """
     def __init__(self, width: int, height: int) -> None:
