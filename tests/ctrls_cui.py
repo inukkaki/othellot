@@ -32,8 +32,10 @@ def main() -> int:
             b_size[key] = value
             break
 
-    # Make instances
+    # Get ready for a game
     board = Board(**b_size)
+    board.setup()
+
     cursor = Cursor(board)
 
     # Display the board
