@@ -30,7 +30,7 @@ class Grid:
         return self._state
 
     @state.setter
-    def state(self, state: str) -> str:
+    def state(self, state: str) -> None:
         if not isinstance(state, str):
             raise TypeError(f"'state' must be a string: {repr(state)}")
         states_of_disks = ["none", "dark", "light"]
@@ -92,7 +92,7 @@ class Board:
                 row.append(grid)
             self.grids.append(row)
 
-    def setup(self):
+    def setup(self) -> None:
         """Arranges disks in an initial placement.
 
         Ordinarily a disk with the light side is put on the northwest side of
