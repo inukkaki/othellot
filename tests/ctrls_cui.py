@@ -14,11 +14,13 @@ def main() -> int:
     """Replicates the actual game flow."""
     clear_console()
 
+    prompt = colored_str("> ", "yellow")
+
     # Determine the size of a board
     b_size = {"width": 8, "height": 8}
     for key in b_size:
         while True:
-            raw_value = input(key + colored_str(" > ", "yellow"))
+            raw_value = input(f"{key} {prompt}")
             try:
                 value = int(raw_value)
             except ValueError:
@@ -26,7 +28,7 @@ def main() -> int:
                       f"{colored_str(raw_value, 'black')}")
                 continue
             if value <= 0:
-                print("must be greater than zeto: "
+                print("must be greater than zero: "
                       f"{colored_str(value, 'black')}")
                 continue
             b_size[key] = value
@@ -38,11 +40,23 @@ def main() -> int:
 
     cursor = Cursor(board)
 
-    # Display the board
-    clear_console()
-    print(convert_board_into_str(board, cursor))
+    # Main loop
+    while True:
+        message = "cursor"
+        while True:
+            # Display the board
+            clear_console()
+            print(convert_board_into_str(board, cursor))
 
-    return 0
+            # Wait for an input to the cursor
+            direction = input(f"{message} {prompt}")
+            try:
+                cursor.move(direction)
+                break
+            except ValueError:
+                if direction == "z":
+                    return 0
+                message = "unsupported value; cursor"
 
 
 sys.exit(main())

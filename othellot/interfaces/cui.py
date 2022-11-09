@@ -26,6 +26,28 @@ class Cursor:
         self.pos = self.position = position
         self.clamp_itself_within_board()
 
+    def move(self, direction: str) -> None:
+        """Moves this cursor's position within the bounds of the board.
+
+        This function's argument ``direction`` is only allowed to receive an
+        initial of 'north', 'south', 'east', or 'west'.
+
+        """
+        if not isinstance(direction, str):
+            raise TypeError(f"'direction' must be a string: {repr(direction)}")
+        compass = {"n": (-1, 0), "s": (1, 0), "e": (0, 1), "w": (0, -1)}
+        if direction not in compass:
+            raise ValueError(
+                "Unsupported value. The value of 'direction' must be any one "
+                f"of {', '.join(compass)}: {repr(direction)}")
+
+        c_row, c_col = self.pos.values()
+        d_row, d_col = compass.get(direction)
+
+        self.pos["row"] = c_row + d_row
+        self.pos["column"] = c_col + d_col
+        self.clamp_itself_within_board()
+
     def clamp_itself_within_board(self) -> None:
         """Clamps this cursor within the board.
 
