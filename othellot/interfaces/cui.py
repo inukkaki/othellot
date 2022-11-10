@@ -29,7 +29,7 @@ class Cursor:
     def move(self, direction: str) -> None:
         """Moves this cursor's position within the bounds of the board.
 
-        This function's argument ``direction`` is only allowed to receive an
+        This method's argument ``direction`` is only allowed to receive an
         initial of 'north', 'south', 'east', or 'west'.
 
         """
@@ -51,7 +51,7 @@ class Cursor:
     def clamp_itself_within_board(self) -> None:
         """Clamps this cursor within the board.
 
-        This function clamps this cursor's position within the range of the
+        This method clamps this cursor's position within the range of the
         board. The 'range' here means the bounding box defined by both the size
         of the board and its origin.
 
