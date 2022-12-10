@@ -1,6 +1,6 @@
 import os
 
-from othellot.models.othello import Board
+from othellot.models.othello import Board, Position
 
 
 class Cursor:
@@ -17,13 +17,10 @@ class Cursor:
                 f"'board' must be an instance of Board: {repr(board)}")
         self.board = board
 
-        position = {"row": row_number, "column": column_number}
-        for key in position:
-            value = position.get(key)
-            if not isinstance(value, int):
-                raise TypeError(
-                    f"'{key}_number' must be an integer: {repr(value)}")
-        self.pos = self.position = position
+        try:
+            self.pos = Position(row_number, column_number)
+        except TypeError as err:
+            raise TypeError(err) from None
         self.clamp_itself_within_board()
 
     def move(self, direction: str) -> None:
@@ -40,12 +37,8 @@ class Cursor:
             raise ValueError(
                 "Unsupported value. The value of 'direction' must be any one "
                 f"of {', '.join(compass)}: {repr(direction)}")
-
-        c_row, c_col = self.pos.values()
-        d_row, d_col = compass.get(direction)
-
-        self.pos["row"] = c_row + d_row
-        self.pos["column"] = c_col + d_col
+        delta = Position(*(compass.get(direction)))
+        self.pos += delta
         self.clamp_itself_within_board()
 
     def clamp_itself_within_board(self) -> None:
@@ -57,13 +50,11 @@ class Cursor:
 
         """
         clamp = lambda x, minimum, maximum: max(minimum, min(x, maximum))
-
-        c_row, c_col = self.pos.values()
-        o_row, o_col = self.board.origin.values()
-        b_width, b_height = self.board.width, self.board.height
-
-        self.pos["row"] = clamp(c_row, o_row, b_height - o_row - 1)
-        self.pos["column"] = clamp(c_col, o_col, b_width - o_col - 1)
+        s = self.pos
+        o = self.board.origin
+        b = self.board
+        s.row = clamp(s.row, o.row, b.height + o.row - 1)
+        s.col = clamp(s.col, o.col, b.width + o.col - 1)
 
 
 def clear_console() -> None:
@@ -91,18 +82,16 @@ def convert_board_into_str(board: Board, cursor: Cursor) -> str:
         "unknown": ["?", "yellow"]
         }
 
-    c_row, c_col = cursor.pos.values()
-
     product = ""
-    for i in range(0, board.height):
-        for j in range(0, board.width):
+    for i in range(board.height):
+        for j in range(board.width):
             grid = board.grids[i][j]
             try:
                 packed_str = mapping[grid.state].copy()
             except KeyError:
                 packed_str = mapping.get("unknown").copy()
 
-            if (c_row, c_col) == (i, j):
+            if cursor.pos.to_tuple() == (i, j):
                 packed_str.append("bg_white")
 
             text = packed_str.pop(0)

@@ -3,7 +3,7 @@ from math import ceil
 
 
 class Position:
-    """Defines a generic standard of position objects.
+    """Defines a generic standard of position instances.
 
     This class supports a two-dimensional position, consisting of two
     integers ``row`` and ``col``.
@@ -18,6 +18,30 @@ class Position:
                     f"'{key}_number' must be an integer: {repr(value)}")
         self.row, self.col = position.values()
 
+    def __add__(self, other: Position) -> Position:
+        if not isinstance(other, Position):
+            raise TypeError(
+                "Addition between Position instances is only supported: "
+                f"{repr(other)}")
+        s_row = self.row + other.row
+        s_col = self.col + other.col
+        summation = Position(s_row, s_col)
+        return summation
+
+    def __sub__(self, other: Position) -> Position:
+        if not isinstance(other, Position):
+            raise TypeError(
+                "Subtraction between Position instances is only supported: "
+                f"{repr(other)}")
+        d_row = self.row - other.row
+        d_col = self.col - other.col
+        difference = Position(d_row, d_col)
+        return difference
+
+    def to_tuple(self) -> tuple[int, int]:
+        """Returns a tuple consisting of ``row`` and ``col``."""
+        return (self.row, self.col)
+
 
 class Grid:
     """Defines a grid that composes a board.
@@ -31,13 +55,10 @@ class Grid:
     """
     def __init__(self, row_number: int, column_number: int,
                  state: str = "none") -> None:
-        position = {"row": row_number, "column": column_number}
-        for key in position:
-            value = position.get(key)
-            if not isinstance(value, int):
-                raise TypeError(
-                    f"'{key}_number' must be an integer: {repr(value)}")
-        self.pos = self.position = position
+        try:
+            self.pos = Position(row_number, column_number)
+        except TypeError as err:
+            raise TypeError(err) from None
         self._state = self.state = state
         self.neighbors = {}
 
@@ -68,12 +89,8 @@ class Grid:
         if not isinstance(neighbor, Grid):
             raise TypeError(
                 f"'neighbor' must be an instance of Grid: {repr(neighbor)}")
-
-        n_row, n_col = neighbor.pos.values()
-        s_row, s_col = self.pos.values()
-        relative_position = (n_row - s_row, n_col - s_col)
-
-        self.neighbors[relative_position] = neighbor
+        relative_pos = neighbor.pos - self.pos
+        self.neighbors[relative_pos.to_tuple()] = neighbor
 
 
 class Board:
@@ -85,7 +102,7 @@ class Board:
 
     """
     def __init__(self, width: int, height: int) -> None:
-        self.origin = {"row": 0, "column": 0}
+        self.origin = Position(0, 0)
 
         size = {"width": width, "height": height}
         for key in size:
@@ -99,12 +116,12 @@ class Board:
         self.width = size.get("width")
         self.height = size.get("height")
 
-        o_row, o_col = self.origin.values()
+        o = self.origin
 
         self.grids = []
-        for i in range(o_row, self.height - o_row):
+        for i in range(o.row, self.height + o.row):
             row = []
-            for j in range(o_col, self.width - o_col):
+            for j in range(o.col, self.width + o.col):
                 grid = Grid(i, j)
                 row.append(grid)
             self.grids.append(row)
