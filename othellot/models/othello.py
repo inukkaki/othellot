@@ -2,6 +2,23 @@ from __future__ import annotations
 from math import ceil
 
 
+class Position:
+    """Defines a generic standard of position objects.
+
+    This class supports a two-dimensional position, consisting of two
+    integers ``row`` and ``col``.
+
+    """
+    def __init__(self, row_number: int, column_number: int) -> None:
+        position = {"row": row_number, "column": column_number}
+        for key in position:
+            value = position.get(key)
+            if not isinstance(value, int):
+                raise TypeError(
+                    f"'{key}_number' must be an integer: {repr(value)}")
+        self.row, self.col = position.values()
+
+
 class Grid:
     """Defines a grid that composes a board.
 
