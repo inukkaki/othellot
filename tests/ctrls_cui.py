@@ -1,6 +1,5 @@
 """A module for checking game controls in the CUI."""
 import sys
-import time
 
 from pynput import keyboard
 
@@ -17,9 +16,9 @@ def main() -> int:
     """Replicates the actual game flow."""
     clear_console()
 
+    # Determine the size of a board
     prompt = colored_str("> ", "yellow")
 
-    # Determine the size of a board
     b_size = {"width": 8, "height": 8}
     for key in b_size:
         while True:
@@ -44,47 +43,45 @@ def main() -> int:
     cursor = Cursor(board)
 
     # Prepare for a keyboard listener
-    kbd_entry = {"key": None, "is_updated": False}
-    def on_press(key) -> None:
+    escape_key = keyboard.Key.esc
+
+    kbd_entry = [None]
+    def on_press(key) -> bool:
         try:
-            kbd_entry["key"] = key.char
-            kbd_entry["is_updated"] = True
+            kbd_entry[0] = key.char
         except AttributeError:
-            pass
+            kbd_entry[0] = key
+        return False
     kbd_mapping = {
         "w": (cursor.move, "n"), "a": (cursor.move, "w"),
         "s": (cursor.move, "s"), "d": (cursor.move, "e")
     }
 
     # Main loop
-    spf = 0.0333  # Stands for seconds per frame
-
-    clear_console()
-    print(convert_board_into_str(board, cursor))
-
-    listener = keyboard.Listener(on_press=on_press, suppress=True)
-    listener.start()
-
     while True:
-        if kbd_entry["key"] == "z":
+        # Update the console
+        clear_console()
+        print(convert_board_into_str(board, cursor))
+
+        # Receive an input from the keyboard
+        with keyboard.Listener(on_press=on_press) as listener:
+            listener.join()
+        if kbd_entry[0] == escape_key:
             break
 
-        # The console updates itself if a different key is pressed
-        if kbd_entry["is_updated"] == True:
-            try:
-                key = kbd_entry.get("key")
-                target_func, mapped_value = kbd_mapping[key]
-            except KeyError:
-                pass
-            else:
-                target_func(mapped_value)
-                kbd_entry["is_updated"] = False
-                clear_console()
-                print(convert_board_into_str(board, cursor))
+        # NOTE: The Esc key clears characters on the prompt line in a console
+        # (powershell) of Visual Studio Code.
 
-        time.sleep(spf)
+        try:
+            key = kbd_entry[0]
+            target_func, mapped_value = kbd_mapping[key]
+        except KeyError:
+            pass
+        else:
+            target_func(mapped_value)
+        kbd_entry = [None]
 
-    listener.stop()
+    return 0
 
 
 sys.exit(main())
