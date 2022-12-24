@@ -80,7 +80,7 @@ def convert_board_into_str(board: Board, cursor: Cursor) -> str:
     mapping = {
         "none": [".", "blue"], "dark": ["D", "black"], "light": ["L", "white"],
         "unknown": ["?", "yellow"]
-        }
+    }
 
     product = ""
     for i in range(board.height):
@@ -122,7 +122,7 @@ def colored_str(text: object, *colors: str) -> str:
         "magenta": 35, "cyan": 36, "white": 37, "default": 39, "bg_black": 40,
         "bg_red": 41, "bg_green": 42, "bg_yellow": 43, "bg_blue": 44,
         "bg_magenta": 45, "bg_cyan": 46, "bg_white": 47, "bg_default": 49
-        }
+    }
 
     color_codes = []
     for key in colors:

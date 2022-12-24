@@ -6,7 +6,7 @@ from othellot.interfaces.cui import (
     colored_str,
     convert_board_into_str,
     Cursor
-    )
+)
 from othellot.models.othello import Board
 
 
