@@ -25,9 +25,13 @@ def main() -> int:
 
     # NOTE: The boolean ``suppress``, which is a parameter of
     # ``keyboard.Listener``, prevents contents of the standard input buffer
-    # flushing after this program terminates.
+    # flushing after this program terminates. However, please make sure that
+    # the suppression does not apply only to the console where the interpreter
+    # went live, but extends over all the other applications.
 
     # Main loop
+    spf = 0.0333  # Stands for seconds per frame
+
     clear_console()
     print("If 'x' pressed, this program terminates.")
 
@@ -42,7 +46,7 @@ def main() -> int:
             print(f"previous: {repr(entry.get('previous'))}")
             entry["previous"] = entry.get("current")
 
-        time.sleep(0.0333)
+        time.sleep(spf)
 
     # Terminate the listener
     listener.stop()

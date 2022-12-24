@@ -1,5 +1,8 @@
 """A module for checking game controls in the CUI."""
 import sys
+import time
+
+from pynput import keyboard
 
 from othellot.interfaces.cui import (
     clear_console,
@@ -34,29 +37,54 @@ def main() -> int:
             b_size[key] = value
             break
 
-    # Get ready for a game
+    # Create instances necessary for a game
     board = Board(**b_size)
     board.setup()
 
     cursor = Cursor(board)
 
-    # Main loop
-    while True:
-        message = "cursor"
-        while True:
-            # Display the board
-            clear_console()
-            print(convert_board_into_str(board, cursor))
+    # Prepare for a keyboard listener
+    kbd_entry = {"key": None, "is_updated": False}
+    def on_press(key) -> None:
+        try:
+            kbd_entry["key"] = key.char
+            kbd_entry["is_updated"] = True
+        except AttributeError:
+            pass
+    kbd_mapping = {
+        "w": (cursor.move, "n"), "a": (cursor.move, "w"),
+        "s": (cursor.move, "s"), "d": (cursor.move, "e")
+    }
 
-            # Wait for an input to the cursor
-            direction = input(f"{message} {prompt}")
+    # Main loop
+    spf = 0.0333  # Stands for seconds per frame
+
+    clear_console()
+    print(convert_board_into_str(board, cursor))
+
+    listener = keyboard.Listener(on_press=on_press, suppress=True)
+    listener.start()
+
+    while True:
+        if kbd_entry["key"] == "z":
+            break
+
+        # The console updates itself if a different key is pressed
+        if kbd_entry["is_updated"] == True:
             try:
-                cursor.move(direction)
-                break
-            except ValueError:
-                if direction == "z":
-                    return 0
-                message = "unsupported value; cursor"
+                key = kbd_entry.get("key")
+                target_func, mapped_value = kbd_mapping[key]
+            except KeyError:
+                pass
+            else:
+                target_func(mapped_value)
+                kbd_entry["is_updated"] = False
+                clear_console()
+                print(convert_board_into_str(board, cursor))
+
+        time.sleep(spf)
+
+    listener.stop()
 
 
 sys.exit(main())
