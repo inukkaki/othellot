@@ -1,4 +1,5 @@
 """A module for testing to monitor the keyboard."""
+import copy
 import sys
 import time
 
@@ -9,18 +10,29 @@ from othellot.interfaces.cui import clear_console
 
 def main() -> int:
     """A short procedure for testing to monitor the keyboard."""
-    entry = {"current": None, "previous": None}
+    escape_key = keyboard.Key.esc
 
-    def on_press(key) -> None:
+    kbd_entry = set()
+    def on_press(key) -> None | bool:
         try:
-            entered_key = key.char
-            entry["previous"] = entry.get("current")
-            entry["current"] = entered_key
+            kbd_entry.add(key.char)
         except AttributeError:
+            kbd_entry.add(key)
+        # If ``escape_key`` is pressed, terminate the listener
+        if key == escape_key:
+            return False
+    def on_release(key) -> None:
+        try:
+            try:
+                kbd_entry.remove(key.char)
+            except AttributeError:
+                kbd_entry.remove(key)
+        except KeyError:
             pass
+    kbd_entry_prev = copy.deepcopy(kbd_entry)
 
     # Start a keyboard listener
-    listener = keyboard.Listener(on_press=on_press, suppress=True)
+    listener = keyboard.Listener(on_press=on_press, on_release=on_release)
     listener.start()
 
     # NOTE: The boolean ``suppress``, which is a parameter of
@@ -33,23 +45,20 @@ def main() -> int:
     spf = 0.0333  # Stands for seconds per frame
 
     clear_console()
-    print("If 'x' pressed, this program terminates.")
+    print("If Esc is pressed, this program terminates itself.")
 
     while True:
-        if entry["current"] == 'z':
+        # Update the console
+        if kbd_entry_prev != kbd_entry:
+            clear_console()
+            print([element for element in kbd_entry])
+            kbd_entry_prev = copy.deepcopy(kbd_entry)
+
+        # If the keyboard listener is not alive, break the loop
+        if not listener.is_alive():
             break
 
-        # If a different key is pressed, the console updates itself
-        if entry["current"] != entry["previous"]:
-            clear_console()
-            print(f"current: {repr(entry.get('current'))}")
-            print(f"previous: {repr(entry.get('previous'))}")
-            entry["previous"] = entry.get("current")
-
         time.sleep(spf)
-
-    # Terminate the listener
-    listener.stop()
 
     return 0
 

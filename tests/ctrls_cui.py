@@ -69,8 +69,8 @@ def main() -> int:
         if kbd_entry[0] == escape_key:
             break
 
-        # NOTE: The Esc key clears characters on the prompt line in a console
-        # (powershell) of Visual Studio Code.
+        # NOTE: The Esc key clears characters on the prompt line in a console,
+        # at least in PowerShell.
 
         try:
             key = kbd_entry[0]
