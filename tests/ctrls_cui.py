@@ -1,5 +1,7 @@
 """A module for checking game controls in the CUI."""
+import getpass
 import sys
+import time
 
 from pynput import keyboard
 
@@ -44,42 +46,82 @@ def main() -> int:
 
     # Prepare for a keyboard listener
     escape_key = keyboard.Key.esc
+    key_count = {"enter": 0}
 
-    kbd_entry = [None]
-    def on_press(key) -> bool:
+    kbd_entry = {}
+    def on_press(key) -> None | bool:
         try:
-            kbd_entry[0] = key.char
+            dict_key = key.char
         except AttributeError:
-            kbd_entry[0] = key
-        return False
+            dict_key = key
+            # Count the number of times the enter key is pressed
+            if key == keyboard.Key.enter:
+                key_count["enter"] += 1
+        try:
+            kbd_entry[dict_key] += 1
+        except KeyError:
+            kbd_entry[dict_key] = 1
+        # If ``escape_key`` is pressed, terminate the listener
+        if key == escape_key:
+            return False
+    def on_release(key) -> None:
+        try:
+            try:
+                kbd_entry[key.char] = 0
+            except AttributeError:
+                kbd_entry[key] = 0
+        except KeyError:
+            pass
+    kbd_entry_prev = None
+
     kbd_mapping = {
         "w": (cursor.move, "n"), "a": (cursor.move, "w"),
         "s": (cursor.move, "s"), "d": (cursor.move, "e")
     }
 
-    # Main loop
-    while True:
-        # Update the console
-        clear_console()
-        print(convert_board_into_str(board, cursor))
+    # Start the keyboard listener
+    listener = keyboard.Listener(on_press=on_press, on_release=on_release)
+    listener.start()
 
-        # Receive an input from the keyboard
-        with keyboard.Listener(on_press=on_press) as listener:
-            listener.join()
-        if kbd_entry[0] == escape_key:
+    # Main loop
+    fps = 30
+
+    while True:
+        # If the keyboard listener is not alive, break the loop
+        if not listener.is_alive():
             break
 
-        # NOTE: The Esc key clears characters on the prompt line in a console,
-        # at least in PowerShell.
+        # Capture the keyboard entry on another dictionary
+        kbd_entry_locked = kbd_entry.copy()
 
-        try:
-            key = kbd_entry[0]
-            target_func, mapped_value = kbd_mapping[key]
-        except KeyError:
-            pass
-        else:
-            target_func(mapped_value)
-        kbd_entry = [None]
+        # Check whether the keyboard entry is changed
+        if kbd_entry_prev != kbd_entry_locked:
+            # Update the console
+            clear_console()
+            print(convert_board_into_str(board, cursor))
+            kbd_entry_prev = kbd_entry_locked.copy()
+
+            # Perform a corresponding processing for each key entered
+            for entered_key in kbd_entry_locked:
+                if kbd_entry_locked.get(entered_key) == 0:
+                    continue
+                try:
+                    target_func, mapped_value = kbd_mapping[entered_key]
+                except KeyError:
+                    continue
+                target_func(mapped_value)
+
+        time.sleep(1 / fps)
+
+    clear_console()
+
+    # Prevent the events from propagating themselves to the terminal
+    for _ in range(key_count.get("enter")):
+        _ = getpass.getpass(prompt="")
+    clear_console()
+
+    # NOTE: The Esc key clears characters on the prompt line in a console, at
+    # least in PowerShell.
 
     return 0
 
