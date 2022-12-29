@@ -1,5 +1,6 @@
 """A module for testing to monitor the keyboard."""
 import copy
+import getpass
 import sys
 import time
 
@@ -10,6 +11,7 @@ from othellot.interfaces.cui import clear_console
 
 def main() -> int:
     """A short procedure for testing to monitor the keyboard."""
+    key_count = {"enter": 0}
     escape_key = keyboard.Key.esc
 
     kbd_entry = set()
@@ -18,6 +20,9 @@ def main() -> int:
             kbd_entry.add(key.char)
         except AttributeError:
             kbd_entry.add(key)
+            # Count the number of times the enter key is pressed
+            if key == keyboard.Key.enter:
+                key_count["enter"] += 1
         # If ``escape_key`` is pressed, terminate the listener
         if key == escape_key:
             return False
@@ -59,6 +64,18 @@ def main() -> int:
             break
 
         time.sleep(spf)
+
+    clear_console()
+
+    # Prevent the events from propagating themselves to the terminal
+    for _ in range(key_count.get("enter")):
+        _ = getpass.getpass(prompt="")
+    clear_console()
+
+    # The block above is a compromise to avoid propagating events that a user
+    # input while the keyboard listener running, to the terminal. This works
+    # but is not an official solution. If a better idea comes to mind, this
+    # might be replaced with it.
 
     return 0
 
