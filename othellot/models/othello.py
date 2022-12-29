@@ -116,12 +116,12 @@ class Board:
         self.width = size.get("width")
         self.height = size.get("height")
 
-        o = self.origin
+        origin = self.origin
 
         self.grids = []
-        for i in range(o.row, self.height + o.row):
+        for i in range(origin.row, self.height + origin.row):
             row = []
-            for j in range(o.col, self.width + o.col):
+            for j in range(origin.col, self.width + origin.col):
                 grid = Grid(i, j)
                 row.append(grid)
             self.grids.append(row)
@@ -134,6 +134,7 @@ class Board:
         after the other.
 
         """
+        # Calculate the center of this board
         c_row = ceil(self.height / 2) - 1
         c_col = ceil(self.width / 2) - 1
 

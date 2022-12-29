@@ -50,11 +50,11 @@ class Cursor:
 
         """
         clamp = lambda x, minimum, maximum: max(minimum, min(x, maximum))
-        s = self.pos
-        o = self.board.origin
-        b = self.board
-        s.row = clamp(s.row, o.row, b.height + o.row - 1)
-        s.col = clamp(s.col, o.col, b.width + o.col - 1)
+        pos = self.pos
+        origin = self.board.origin
+        bd = self.board
+        pos.row = clamp(pos.row, origin.row, bd.height + origin.row - 1)
+        pos.col = clamp(pos.col, origin.col, bd.width + origin.col - 1)
 
 
 def clear_console() -> None:
