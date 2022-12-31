@@ -126,6 +126,27 @@ class Board:
                 row.append(grid)
             self.grids.append(row)
 
+    def is_enclosing(self, row_number: int, column_number: int,
+                     offsets: str | None = None) -> bool:
+        """Checks if this board encloses passed integers as a point.
+
+        The optional argument ``offsets`` determines whether the range of this
+        board is considered with offset values added when calculating the
+        return value. If it is equivalent to 'origin', the offset is the origin
+        of this board; otherwise, nothing. Defaults to None.
+
+        """
+        position = {"row": row_number, "column": column_number}
+        for key in position:
+            value = position.get(key)
+            if not isinstance(value, int):
+                raise TypeError(
+                    f"'{key}_number' must be an integer: {repr(value)}")
+        origin = self.origin if offsets == "origin" else Position(0, 0)
+        cond_row = (0 <= row_number - origin.row <= self.height - 1)
+        cond_col = (0 <= column_number - origin.col <= self.width - 1)
+        return cond_row and cond_col
+
     def setup(self) -> None:
         """Arranges disks in an initial placement.
 
