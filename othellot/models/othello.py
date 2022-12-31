@@ -159,12 +159,12 @@ class Board:
         c_row = ceil(self.height / 2) - 1
         c_col = ceil(self.width / 2) - 1
 
+        domain = [(i, j) for i in range(2) for j in range(2)]
         mapping = {0: "light", 1: "dark"}
-        for i in range(2):
-            for j in range(2):
-                try:
-                    grid = self.grids[c_row + i][c_col + j]
-                except IndexError:
-                    continue
-                state = mapping.get((i+j) % 2)
-                grid.state = state
+        for i, j in domain:
+            try:
+                grid = self.grids[c_row + i][c_col + j]
+            except IndexError:
+                continue
+            state = mapping.get((i+j) % 2)
+            grid.state = state
