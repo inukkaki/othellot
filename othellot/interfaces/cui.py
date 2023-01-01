@@ -63,12 +63,16 @@ def clear_console() -> None:
     os.system(command)
 
 
-def convert_board_into_str(board: Board, cursor: Cursor) -> str:
+def convert_board_into_str(board: Board, cursor: Cursor, **kwargs) -> str:
     """Converts an instance of Board into a string.
 
     This function assigns each grid of the board, including a cursor, to a
     single character decorated by escape sequences. They are concatenated
-    with spaces, returned as a representation of the board by this function.
+    with spaces, returned as a representation of the board.
+
+    There is an argument that ``**kwargs`` supports: ``show_neighbors``,
+    which determines whether this function renders the neighbors of a grid
+    pointed by the cursor.
 
     """
     if not isinstance(board, Board):
@@ -82,6 +86,16 @@ def convert_board_into_str(board: Board, cursor: Cursor) -> str:
         "unknown": ["?", "yellow"]
     }
 
+    # Obtain the neighborhood of a grid that the cursor points (optional)
+    if kwargs.get("show_neighbors"):
+        target_grid = board.grids[cursor.pos.row][cursor.pos.col]
+        neighborhood = [
+            (cursor.pos.row + i, cursor.pos.col + j)
+            for i, j in target_grid.neighbors.keys()
+        ]
+    else:
+        neighborhood = []
+
     product = ""
     for i in range(board.height):
         for j in range(board.width):
@@ -91,14 +105,17 @@ def convert_board_into_str(board: Board, cursor: Cursor) -> str:
             except KeyError:
                 packed_str = mapping.get("unknown").copy()
 
-            if cursor.pos.to_tuple() == (i, j):
+            # Render the cursor
+            if (i, j) == cursor.pos.to_tuple():
                 packed_str.append("bg_white")
+
+            # Render the neighbors (optional)
+            if (i, j) in neighborhood:
+                packed_str.append("red")
 
             text = packed_str.pop(0)
             colors = packed_str
-
-            product += colored_str(text, *colors)
-            product += " "
+            product += (colored_str(text, *colors) + " ")
         product += "\n"
 
     return product

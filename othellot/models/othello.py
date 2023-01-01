@@ -115,6 +115,9 @@ class Board:
                     f"'{key}' must be greater than zero: {repr(value)}")
         self.width = size.get("width")
         self.height = size.get("height")
+        self.domain = [
+            (i, j) for i in range(self.height) for j in range(self.width)
+        ]
 
         origin = self.origin
 
@@ -146,6 +149,21 @@ class Board:
         cond_row = (0 <= row_number - origin.row <= self.height - 1)
         cond_col = (0 <= column_number - origin.col <= self.width - 1)
         return cond_row and cond_col
+
+    def linking(self) -> None:
+        """Links each grid of this board with its neighbor grids."""
+        neighborhood = [
+            (i, j) for i in range(-1, 2) for j in range(-1, 2)
+            if (i != 0) or (j != 0)
+        ]
+        for i, j in self.domain:
+            grid = self.grids[i][j]
+            for k, l in neighborhood:
+                n_row, n_col = i + k, j + l
+                if not self.is_enclosing(n_row, n_col):
+                    continue
+                neighbor = self.grids[n_row][n_col]
+                grid.add_neighbor(neighbor)
 
     def setup(self) -> None:
         """Arranges disks in an initial placement.

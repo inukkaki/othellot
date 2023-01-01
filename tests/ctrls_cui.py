@@ -40,6 +40,7 @@ def main() -> int:
 
     # Create instances necessary for a game
     board = Board(**b_size)
+    board.linking()
     board.setup()
 
     cursor = Cursor(board)
@@ -74,10 +75,11 @@ def main() -> int:
             pass
     kbd_entry_prev = None
 
-    kbd_mapping = {
+    funcs_map = {
         "w": (cursor.move, "n"), "a": (cursor.move, "w"),
         "s": (cursor.move, "s"), "d": (cursor.move, "e")
     }
+    rendering_map = {"n": {"show_neighbors": True}}
 
     # Start the keyboard listener
     listener = keyboard.Listener(on_press=on_press, on_release=on_release)
@@ -96,20 +98,30 @@ def main() -> int:
 
         # Check whether the keyboard entry is changed
         if kbd_entry_prev != kbd_entry_locked:
-            # Update the console
-            clear_console()
-            print(convert_board_into_str(board, cursor))
-            kbd_entry_prev = kbd_entry_locked.copy()
+            rendering_option = {}
 
             # Perform a corresponding processing for each key entered
             for entered_key in kbd_entry_locked:
                 if kbd_entry_locked.get(entered_key) == 0:
                     continue
+
+                # Get a corresponding function
                 try:
-                    target_func, mapped_value = kbd_mapping[entered_key]
+                    target_func, mapped_value = funcs_map[entered_key]
+                    target_func(mapped_value)
                 except KeyError:
-                    continue
-                target_func(mapped_value)
+                    pass
+
+                # Add a corresponding option for rendering the board
+                try:
+                    rendering_option |= rendering_map[entered_key]
+                except KeyError:
+                    pass
+
+            # Update the console
+            clear_console()
+            print(convert_board_into_str(board, cursor, **rendering_option))
+            kbd_entry_prev = kbd_entry_locked.copy()
 
         time.sleep(1 / fps)
 
