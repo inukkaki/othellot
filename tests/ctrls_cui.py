@@ -40,8 +40,8 @@ def main() -> int:
 
     # Create instances necessary for a game
     board = Board(**b_size)
-    board.linking()
     board.setup()
+    board.linking()
 
     cursor = Cursor(board)
 
@@ -75,11 +75,11 @@ def main() -> int:
             pass
     kbd_entry_prev = None
 
-    funcs_map = {
+    func_dict = {
         "w": (cursor.move, "n"), "a": (cursor.move, "w"),
         "s": (cursor.move, "s"), "d": (cursor.move, "e")
     }
-    rendering_map = {"n": {"show_neighbors": True}}
+    rendering_dict = {"n": {"show_neighbors": True}}
 
     # Start the keyboard listener
     listener = keyboard.Listener(on_press=on_press, on_release=on_release)
@@ -107,14 +107,14 @@ def main() -> int:
 
                 # Get a corresponding function
                 try:
-                    target_func, mapped_value = funcs_map[entered_key]
+                    target_func, mapped_value = func_dict[entered_key]
                     target_func(mapped_value)
                 except KeyError:
                     pass
 
                 # Add a corresponding option for rendering the board
                 try:
-                    rendering_option |= rendering_map[entered_key]
+                    rendering_option |= rendering_dict[entered_key]
                 except KeyError:
                     pass
 

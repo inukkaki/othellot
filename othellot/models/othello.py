@@ -71,7 +71,7 @@ class Grid:
     def state(self, state: str) -> None:
         if not isinstance(state, str):
             raise TypeError(f"'state' must be a string: {repr(state)}")
-        states_of_disks = ["none", "dark", "light"]
+        states_of_disks = ["none", "dark", "light", "available"]
         if state not in states_of_disks:
             raise ValueError(
                 "Unsupported value. The value of 'state' must be any one of "
@@ -173,6 +173,10 @@ class Board:
         after the other.
 
         """
+        for i, j in self.domain:
+            grid = self.grids[i][j]
+            grid.state = "none"
+
         # Calculate the center of this board
         c_row = ceil(self.height / 2) - 1
         c_col = ceil(self.width / 2) - 1
@@ -186,3 +190,66 @@ class Board:
                 continue
             state = mapping.get((i+j) % 2)
             grid.state = state
+
+    def clear_available_grids(self) -> None:
+        """Backs down on the suggestion about available grids."""
+        for i, j in self.domain:
+            grid = self.grids[i][j]
+            if grid.state == "available":
+                grid.state = "none"
+
+    def suggest_available_grids(self, client: str) -> int:
+        """Suggests grids whose state is 'available'.
+
+        The argument ``client`` must be the color of disks of a player that
+        would like to know where available grids are. This method turns
+        potential grids into available ones and returns the number of them;
+        make sure that the number also includes the already-existing available
+        grids on this board.
+
+        """
+        if not isinstance(client, str):
+            raise TypeError(f"'client' must be a string: {repr(client)}")
+        client_list = ["dark", "light"]
+        if client not in client_list:
+            raise ValueError(
+                "Unsupported value. The value of 'client' must be any one of "
+                f"{', '.join(client_list)}: {repr(client)}")
+
+        opponent_dict = {"dark": "light", "light": "dark"}
+        opponent = opponent_dict.get(client)
+
+        number_of_available_grids = 0
+
+        neighborhood = [
+            (i, j) for i in range(-1, 2) for j in range(-1, 2)
+            if (i != 0) or (j != 0)
+        ]
+        for i, j in self.domain:
+            grid = self.grids[i][j]
+            if grid.state != "none":
+                if grid.state == "available":
+                    number_of_available_grids += 1
+                continue
+            for k, l in neighborhood:
+                target_grid = grid
+                in_between_opponents_exist = False
+                while True:
+                    try:
+                        neighbor = target_grid.neighbors[(k, l)]
+                    except KeyError:
+                        break
+                    if neighbor.state == opponent:
+                        in_between_opponents_exist = True
+                        target_grid = neighbor
+                        continue
+                    elif neighbor.state == client:
+                        if in_between_opponents_exist:
+                            grid.state = "available"
+                        break
+                    break
+                if grid.state == "available":
+                    number_of_available_grids += 1
+                    break
+
+        return number_of_available_grids

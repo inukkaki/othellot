@@ -83,7 +83,7 @@ def convert_board_into_str(board: Board, cursor: Cursor, **kwargs) -> str:
 
     mapping = {
         "none": [".", "blue"], "dark": ["D", "black"], "light": ["L", "white"],
-        "unknown": ["?", "yellow"]
+        "available": ["*", "yellow"], "unknown": ["?", "yellow"]
     }
 
     # Obtain the neighborhood of a grid that the cursor points (optional)
