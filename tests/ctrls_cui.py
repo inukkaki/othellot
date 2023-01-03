@@ -87,6 +87,7 @@ def main() -> int:
 
     # Main loop
     fps = 30
+    suspension_time = 1 / fps
 
     while True:
         # If the keyboard listener is not alive, break the loop
@@ -120,10 +121,10 @@ def main() -> int:
 
             # Update the console
             clear_console()
-            print(convert_board_into_str(board, cursor, **rendering_option))
+            print(convert_board_into_str(cursor, **rendering_option))
             kbd_entry_prev = kbd_entry_locked.copy()
 
-        time.sleep(1 / fps)
+        time.sleep(suspension_time)
 
     clear_console()
 

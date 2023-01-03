@@ -63,23 +63,23 @@ def clear_console() -> None:
     os.system(command)
 
 
-def convert_board_into_str(board: Board, cursor: Cursor, **kwargs) -> str:
+def convert_board_into_str(cursor: Cursor, **kwargs) -> str:
     """Converts an instance of Board into a string.
 
-    This function assigns each grid of the board, including a cursor, to a
-    single character decorated by escape sequences. They are concatenated
-    with spaces, returned as a representation of the board.
+    This function assigns each grid of a board where a passed cursor exists
+    to a single character decorated by escape sequences. They are
+    concatenated with spaces, returned as a representation of the board.
 
     There is an argument that ``**kwargs`` supports: ``show_neighbors``,
     which determines whether this function renders the neighbors of a grid
     pointed by the cursor.
 
     """
-    if not isinstance(board, Board):
-        raise TypeError(f"'board' must be an instance of Board: {repr(board)}")
     if not isinstance(cursor, Cursor):
         raise TypeError(
             f"'cursor' must be an instance of Cursor: {repr(cursor)}")
+
+    board = cursor.board
 
     mapping = {
         "none": [".", "blue"], "dark": ["D", "black"], "light": ["L", "white"],

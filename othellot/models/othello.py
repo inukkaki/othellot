@@ -151,7 +151,13 @@ class Board:
         return cond_row and cond_col
 
     def linking(self) -> None:
-        """Links each grid of this board with its neighbor grids."""
+        """Links each grid of this board with its neighbor grids.
+
+        Here 'neighbor grids' mean ones visually next to a targeted grid. The
+        grids on the edge of this board hence have no neighbors out of the
+        range of this board.
+
+        """
         neighborhood = [
             (i, j) for i in range(-1, 2) for j in range(-1, 2)
             if (i != 0) or (j != 0)
