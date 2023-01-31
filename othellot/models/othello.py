@@ -150,6 +150,16 @@ class Board:
         cond_col = (0 <= column_number - origin.col <= self.width - 1)
         return cond_row and cond_col
 
+    def is_consist_of(self, row_number: int, column_number: int) -> bool:
+        """Checks if a tuple of passed integers belongs to the domain."""
+        position = {"row": row_number, "column": column_number}
+        for key in position:
+            value = position.get(key)
+            if not isinstance(value, int):
+                raise TypeError(
+                    f"'{key}_number' must be an integer: {repr(value)}")
+        return (row_number, column_number) in self.domain
+
     def linking(self) -> None:
         """Links each grid of this board with its neighbor grids.
 
@@ -166,7 +176,7 @@ class Board:
             grid = self.grids[i][j]
             for k, l in neighborhood:
                 n_row, n_col = i + k, j + l
-                if not self.is_enclosing(n_row, n_col):
+                if not self.is_consist_of(n_row, n_col):
                     continue
                 neighbor = self.grids[n_row][n_col]
                 grid.add_neighbor(neighbor)
