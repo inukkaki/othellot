@@ -1,4 +1,9 @@
-"""A module for checking game controls in the CUI."""
+"""A module for checking game controls in the CUI.
+
+This version uses pynput to receive input from the keyboard, and hence
+the main loop runs in a continuous way.
+
+"""
 import getpass
 import sys
 import time
@@ -15,7 +20,7 @@ from othellot.models.othello import Board
 
 
 def main() -> int:
-    """Replicates the actual game flow."""
+    """A function for considering the actual game flow."""
     clear_console()
 
     # Determine the size of a board
