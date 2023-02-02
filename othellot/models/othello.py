@@ -255,6 +255,42 @@ class Board:
 
         return number_of_available_grids
 
+    def suggest_expected_captives(self, row_number: int, column_number: int,
+                                  client: str) -> None:
+        """Updates the contents of the expected captives.
+
+        This method calculates opponent disks between the cursor and a client
+        disk and adds them in ``expected_captives``. If failing to get a grid
+        that the cursor sits on, this does nothing at all.
+
+        """
+        try:
+            grid = self.grids[row_number][column_number]
+        except (TypeError, IndexError):
+            return
+
+        if not isinstance(client, str):
+            raise TypeError(f"'client' must be a string: {repr(client)}")
+        disk_color_list = ["dark", "light"]
+        if client not in disk_color_list:
+            raise ValueError(
+                "Unsupported value. The value of 'client' must be any one of "
+                f"{', '.join(disk_color_list)}: {repr(client)}")
+        disk_color_permutation = {"dark": "light", "light": "dark"}
+        opponent = disk_color_permutation.get(client)
+
+        self.expected_captives.clear()
+        if grid.state != "available":
+            return
+
+        neighborhood = [
+            (i, j) for i in range(-1, 2) for j in range(-1, 2)
+            if (i != 0) or (j != 0)
+        ]
+        for i, j in neighborhood:
+            opp_set = self.calculate_captives(client, opponent, grid, (i, j))
+            self.expected_captives.update(opp_set)
+
     def calculate_captives(self, client: str, opponent: str, grid: Grid,
                            direction: tuple[int, int]) -> set[Grid]:
         """Calculates opponents between two clients and returns their set.

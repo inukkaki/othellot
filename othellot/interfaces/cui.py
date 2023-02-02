@@ -119,9 +119,13 @@ def convert_board_into_str(cursor: Cursor, **kwargs) -> str:
             if (i, j) == cursor.pos.to_tuple():
                 packed_str.append("bg_white")
 
-            # Render the neighbors (optional)
+            # Render neighbors (optional)
             if (i, j) in neighborhood:
                 packed_str.append("red")
+
+            # Render expected captives
+            if grid in board.expected_captives:
+                packed_str.append("green")
 
             text = packed_str.pop(0)
             colors = packed_str

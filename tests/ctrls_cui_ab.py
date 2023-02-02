@@ -73,6 +73,9 @@ def main() -> int:
 
     message = "operate"
     while True:
+        cursor_pos = cursor.pos.to_tuple()
+        board.suggest_expected_captives(*cursor_pos, cursor.disk_color)
+
         # Update the console
         clear_console()
         print(convert_board_into_str(cursor, **render_option))
