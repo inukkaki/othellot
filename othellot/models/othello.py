@@ -227,11 +227,11 @@ class Board:
         """
         if not isinstance(client, str):
             raise TypeError(f"'client' must be a string: {repr(client)}")
-        client_list = ["dark", "light"]
-        if client not in client_list:
+        disk_color_list = ["dark", "light"]
+        if client not in disk_color_list:
             raise ValueError(
                 "Unsupported value. The value of 'client' must be any one of "
-                f"{', '.join(client_list)}: {repr(client)}")
+                f"{', '.join(disk_color_list)}: {repr(client)}")
         disk_color_permutation = {"dark": "light", "light": "dark"}
         opponent = disk_color_permutation.get(client)
 
@@ -248,24 +248,54 @@ class Board:
                     number_of_available_grids += 1
                 continue
             for k, l in neighborhood:
-                target_grid = grid
-                in_between_opponents_exist = False
-                while True:
-                    try:
-                        neighbor = target_grid.neighbors[(k, l)]
-                    except KeyError:
-                        break
-                    if neighbor.state == opponent:
-                        in_between_opponents_exist = True
-                        target_grid = neighbor
-                        continue
-                    elif neighbor.state == client:
-                        if in_between_opponents_exist:
-                            grid.state = "available"
-                        break
-                    break
-                if grid.state == "available":
+                if self.calculate_captives(client, opponent, grid, (k, l)):
+                    grid.state = "available"
                     number_of_available_grids += 1
                     break
 
         return number_of_available_grids
+
+    def calculate_captives(self, client: str, opponent: str, grid: Grid,
+                           direction: tuple[int, int]) -> set[Grid]:
+        """Calculates opponents between two clients and returns their set.
+
+        The argument ``grid`` is a Grid instance that the calculation is to
+        start, and ``direction`` is a tuple of two integers that indicate the
+        direction of the process. If they do not fulfill appropriate types and
+        values, this method returns an empty set.
+
+        """
+        in_between_opponents = set()
+
+        if not isinstance(grid, Grid):
+            return in_between_opponents
+        try:
+            if len(direction) != 2:
+                return in_between_opponents
+        except TypeError:
+            return in_between_opponents
+
+        checked_grids = {grid}
+
+        i, j = direction
+        target_grid = grid
+        while True:
+            try:
+                neighbor = target_grid.neighbors[(i, j)]
+                if neighbor in checked_grids:
+                    in_between_opponents.clear()
+                    break
+            except KeyError:
+                in_between_opponents.clear()
+                break
+            checked_grids.add(neighbor)
+            if neighbor.state == opponent:
+                in_between_opponents.add(neighbor)
+                target_grid = neighbor
+                continue
+            elif neighbor.state == client:
+                break
+            in_between_opponents.clear()
+            break
+
+        return in_between_opponents
