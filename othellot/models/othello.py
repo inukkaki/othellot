@@ -129,6 +129,8 @@ class Board:
                 row.append(grid)
             self.grids.append(row)
 
+        self.expected_captives = set()
+
     def is_enclosing(self, row_number: int, column_number: int,
                      offsets: str | None = None) -> bool:
         """Checks if this board encloses passed integers as a point.
@@ -151,13 +153,12 @@ class Board:
         return cond_row and cond_col
 
     def is_consist_of(self, row_number: int, column_number: int) -> bool:
-        """Checks if a tuple of passed integers belongs to the domain."""
-        position = {"row": row_number, "column": column_number}
-        for key in position:
-            value = position.get(key)
-            if not isinstance(value, int):
-                raise TypeError(
-                    f"'{key}_number' must be an integer: {repr(value)}")
+        """Checks if a tuple of passed integers belongs to the domain.
+
+        This method does not check type of arguments strictly. If any but
+        integers are passed, this returns False.
+
+        """
         return (row_number, column_number) in self.domain
 
     def linking(self) -> None:
@@ -231,9 +232,8 @@ class Board:
             raise ValueError(
                 "Unsupported value. The value of 'client' must be any one of "
                 f"{', '.join(client_list)}: {repr(client)}")
-
-        opponent_dict = {"dark": "light", "light": "dark"}
-        opponent = opponent_dict.get(client)
+        disk_color_permutation = {"dark": "light", "light": "dark"}
+        opponent = disk_color_permutation.get(client)
 
         number_of_available_grids = 0
 

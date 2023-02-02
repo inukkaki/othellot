@@ -37,13 +37,25 @@ def main() -> int:
             size_of_board[key] = value
             break
 
-    # Prepare instances necessary for games
     board = Board(**size_of_board)
     board.linking()
-    board.setup()
 
-    cursor = Cursor(board)
+    # Determine the color of disks of the player
+    disk_color_list = ["dark", "light"]
+    while True:
+        value = input(f"which? (dark/light) {prompt} ")
+        cause = colored_str(value, "black")
+        if value not in disk_color_list:
+            print(f"unsupported value: {cause}")
+            continue
+        players_disks = value
+        break
 
+    cursor = Cursor(board, players_disks)
+
+    disk_color_permutation = {"dark": "light", "light": "dark"}
+
+    # Prepare instances necessary for games
     render_option = {"show_neighbors": False}
     def reverse(key) -> None:
         render_option[key] = not render_option.get(key)
@@ -55,8 +67,11 @@ def main() -> int:
     }
 
     # Main loop
-    message = "operate"
+    board.setup()
 
+    board.suggest_available_grids(cursor.disk_color)
+
+    message = "operate"
     while True:
         # Update the console
         clear_console()
