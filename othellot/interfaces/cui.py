@@ -66,6 +66,12 @@ class Cursor:
         pos.row = clamp(pos.row, origin.row, bd.height + origin.row - 1)
         pos.col = clamp(pos.col, origin.col, bd.width + origin.col - 1)
 
+    def place_a_disk(self) -> str:
+        """Places the player's disk on the board."""
+        pos = self.pos.to_tuple()
+        status = self.board.change_state_of_disks(*pos, self.disk_color)
+        return status
+
 
 def clear_console() -> None:
     """Clears the console."""

@@ -63,34 +63,48 @@ def main() -> int:
     func_dict = {
         "w": (cursor.move, ["n"]), "a": (cursor.move, ["w"]),
         "s": (cursor.move, ["s"]), "d": (cursor.move, ["e"]),
-        "n": (reverse, ["show_neighbors"])
+        "z": (cursor.place_a_disk, []), "n": (reverse, ["show_neighbors"])
     }
 
     # Main loop
+    is_forced_to_quit = False
+
     board.setup()
 
-    board.suggest_available_grids(cursor.disk_color)
-
-    message = "operate"
     while True:
-        cursor_pos = cursor.pos.to_tuple()
-        board.suggest_expected_captives(*cursor_pos, cursor.disk_color)
+        board.suggest_available_grids(cursor.disk_color)
 
-        # Update the console
-        clear_console()
-        print(convert_board_into_str(cursor, **render_option))
+        message = f"operate ({cursor.disk_color})"
+        while True:
+            cursor_pos = cursor.pos.to_tuple()
+            board.suggest_expected_captives(*cursor_pos, cursor.disk_color)
 
-        # Receive an entry from the keyboard
-        entry = input(f"{message} {prompt} ")
-        if entry == "x":
+            # Update the console
+            clear_console()
+            print(convert_board_into_str(cursor, **render_option))
+
+            # Receive an entry from the keyboard
+            entry = input(f"{message} {prompt} ")
+            if entry == "x":
+                is_forced_to_quit = True
+                break
+
+            # Perform a function corresponded to the entry
+            try:
+                target_func, args_list = func_dict[entry]
+                status = target_func(*args_list)
+            except KeyError:
+                pass
+
+            # Break this loop when a disk is placed successfully
+            if status == "succeeded in placing the disk":
+                break
+
+        # Quit the loop
+        if is_forced_to_quit:
             break
 
-        # Perform a function corresponded to the entry
-        try:
-            target_func, args_list = func_dict[entry]
-            target_func(*args_list)
-        except KeyError:
-            pass
+        cursor.disk_color = disk_color_permutation.get(cursor.disk_color)
 
     return 0
 

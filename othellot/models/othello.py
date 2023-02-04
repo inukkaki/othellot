@@ -264,10 +264,9 @@ class Board:
         that the cursor sits on, this does nothing at all.
 
         """
-        try:
-            grid = self.grids[row_number][column_number]
-        except (TypeError, IndexError):
+        if not self.is_consist_of(row_number, column_number):
             return
+        grid = self.grids[row_number][column_number]
 
         if not isinstance(client, str):
             raise TypeError(f"'client' must be a string: {repr(client)}")
@@ -335,3 +334,30 @@ class Board:
             break
 
         return in_between_opponents
+
+    def flip_outflanked_disks(self, row_number: int, column_number: int,
+                              client: str) -> str:
+        """Turns outflanked disks' color into client's one.
+
+        To be exact, this method places client's disk on a specified grid,
+        turns current expected captives' color into client's one, and returns a
+        string that indicates whether these processes are successfully done or
+        failed, as a status. If the specified grid's state is not 'available',
+        the disk will not be placed there.
+
+        """
+        status_f = "failed to place the disk"
+        status_s = "succeeded in placing the disk"
+
+        if not self.is_consist_of(row_number, column_number):
+            return status_f
+        grid = self.grids[row_number][column_number]
+        if grid.state != "available":
+            return status_f
+
+        grid.state = client
+        for target_grid in self.expected_captives:
+            target_grid.state = client
+        self.clear_available_grids()
+
+        return status_s
