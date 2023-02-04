@@ -2,8 +2,8 @@ import sys
 
 
 def main() -> int:
-    """Main function."""
-    print("Meow meow.")
+    """The main function."""
+    print("This is Oserotto.")
     return 0
 
 
