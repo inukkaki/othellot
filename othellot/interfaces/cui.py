@@ -69,7 +69,7 @@ class Cursor:
     def place_a_disk(self) -> str:
         """Places the player's disk on the board."""
         pos = self.pos.to_tuple()
-        status = self.board.change_state_of_disks(*pos, self.disk_color)
+        status = self.board.flip_outflanked_disks(*pos, self.disk_color)
         return status
 
 

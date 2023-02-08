@@ -92,9 +92,13 @@ def main() -> int:
             # Perform a function corresponded to the entry
             try:
                 target_func, args_list = func_dict[entry]
-                status = target_func(*args_list)
+                if target_func == cursor.place_a_disk:
+                    status = target_func(*args_list)
+                else:
+                    target_func(*args_list)
+                    status = None
             except KeyError:
-                pass
+                status = None
 
             # Break this loop when a disk is placed successfully
             if status == "succeeded in placing the disk":
