@@ -1,8 +1,15 @@
 from othellot.models.othello import Board
 
 
-class BaseOpponent:
-    """Defines the base class of every opponent in the game."""
+class BaseAgentModel:
+    """Defines the base class of every agent.
+
+    An agent acts as a decision-making function of a player; that is, the
+    agent decides a specified grid where the player should place a disk and
+    conveys it to the player. It is sorely expected to be used for modeling
+    the behavior of a non-playable character in this game.
+
+    """
     def __init__(self, board: Board, disk_color: str) -> None:
         if not isinstance(board, Board):
             raise TypeError(
