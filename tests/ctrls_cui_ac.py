@@ -54,6 +54,7 @@ def main() -> int:
         break
 
     cursor = Cursor(board, players_disks)
+    is_skipped_first = True if players_disks == "light" else False
 
     disk_color_permutation = {"dark": "light", "light": "dark"}
     opponents_disk = disk_color_permutation.get(players_disks)
@@ -80,7 +81,7 @@ def main() -> int:
 
         # Player's turn
         message = f"operate ({cursor.disk_color})"
-        while True:
+        while not is_skipped_first:
             cursor_pos = cursor.pos.to_tuple()
             board.suggest_expected_captives(*cursor_pos, cursor.disk_color)
 
@@ -112,15 +113,20 @@ def main() -> int:
                 print("You placed a disk.")
                 time.sleep(2.0)
                 break
+        else:
+            board.clear_available_grids()
 
         # Quit the loop
         if is_forced_to_quit:
             break
 
+        is_skipped_first = False
+
         # Opponent's turn
         board.suggest_available_grids(agent.disk_color)
         clear_console()
         print(convert_board_into_str(cursor, **render_option))
+        print(f"{agent.name} is thinking...")
 
         thread = threading.Thread(target=agent.start)
         thread.start()
@@ -136,10 +142,10 @@ def main() -> int:
         status = agent.place_a_disk()
         match status:
             case "succeeded in placing the disk":
-                message = "Opponent placed a disk."
+                message = f"{agent.name} placed a disk."
             case "target_grid is not a grid":
                 board.clear_available_grids()
-                message = "Opponent did not place a disk."
+                message = f"{agent.name} did not place a disk."
             case _:
                 board.clear_available_grids()
                 message = "Some kind of errors could have occurred."

@@ -26,6 +26,8 @@ class BaseAgent:
                 f"of {', '.join(disk_color_list)}: {repr(disk_color)}")
         self.disk_color = disk_color
 
+        self.name = "Base"
+
         self.target_grid = None
         self.state = "free"
 
@@ -69,5 +71,9 @@ class BaseAgent:
 
 
 class Kijitora(BaseAgent):
+    def __init__(self, board: Board, disk_color: str) -> None:
+        super().__init__(board, disk_color)
+        self.name = "Kijitora"
+
     def consider_next_move(self) -> None:
         ...
