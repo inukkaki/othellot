@@ -129,6 +129,7 @@ class Board:
                 row.append(grid)
             self.grids.append(row)
 
+        self.available_grids = set()
         self.expected_captives = set()
 
     def is_enclosing(self, row_number: int, column_number: int,
@@ -214,6 +215,7 @@ class Board:
             grid = self.grids[i][j]
             if grid.state == "available":
                 grid.state = "none"
+        self.available_grids.clear()
 
     def suggest_available_grids(self, client: str) -> int:
         """Suggests grids whose state is 'available'.
@@ -246,18 +248,24 @@ class Board:
             if grid.state != "none":
                 if grid.state == "available":
                     number_of_available_grids += 1
+                    self.available_grids.add(grid)
                 continue
             for k, l in neighborhood:
                 if self.calculate_captives(client, opponent, grid, (k, l)):
                     grid.state = "available"
                     number_of_available_grids += 1
+                    self.available_grids.add(grid)
                     break
 
         return number_of_available_grids
 
+    def clear_expected_captives(self) -> None:
+        """Clears elements of the expected captives."""
+        self.expected_captives.clear()
+
     def suggest_expected_captives(self, row_number: int, column_number: int,
                                   client: str) -> None:
-        """Updates the contents of the expected captives.
+        """Updates elements of the expected captives.
 
         This method calculates opponent disks between the cursor and a client
         disk and adds them in ``expected_captives``. If failing to get a grid
@@ -359,5 +367,6 @@ class Board:
         for target_grid in self.expected_captives:
             target_grid.state = client
         self.clear_available_grids()
+        self.clear_expected_captives()
 
         return status_s

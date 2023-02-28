@@ -1,3 +1,5 @@
+import random
+
 from othellot.models.othello import Board, Grid
 
 
@@ -51,6 +53,19 @@ class BaseAgent:
         self.target_grid = self.consider_next_move()
         self.state = "free"
 
+    def request_suggestion(self) -> None:
+        """Requests the board to suggest expected captives.
+
+        This method requests the board to expect grids that will be flipped if
+        this agent puts its disk on a targeted grid. If the targeted grid is
+        None, this method does nothing.
+
+        """
+        if not isinstance(self.target_grid, Grid):
+            return
+        pos = self.target_grid.pos.to_tuple()
+        self.board.suggest_expected_captives(*pos, self.disk_color)
+
     def place_a_disk(self) -> str:
         """Places the player's disk on the board.
 
@@ -71,9 +86,18 @@ class BaseAgent:
 
 
 class Kijitora(BaseAgent):
+    """Defines the behavior of an agent of Kijitora."""
     def __init__(self, board: Board, disk_color: str) -> None:
         super().__init__(board, disk_color)
         self.name = "Kijitora"
 
-    def consider_next_move(self) -> None:
-        ...
+    def consider_next_move(self) -> Grid | None:
+        """Decides a specified grid where the player should place a disk.
+
+        This agent picks a grid from available ones at random and puts its disk
+        on it. If all the grids are not available, this method returns None.
+
+        """
+        if not self.board.available_grids:
+            return None
+        return random.choice(list(self.board.available_grids))

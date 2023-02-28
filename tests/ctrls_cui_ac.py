@@ -111,7 +111,7 @@ def main() -> int:
                 clear_console()
                 print(convert_board_into_str(cursor, **render_option))
                 print("You placed a disk.")
-                time.sleep(2.0)
+                time.sleep(1.0)
                 break
         else:
             board.clear_available_grids()
@@ -139,6 +139,11 @@ def main() -> int:
                 break
             time.sleep(0.0333)
 
+        agent.request_suggestion()
+        clear_console()
+        print(convert_board_into_str(cursor, **render_option))
+        time.sleep(0.5)
+
         status = agent.place_a_disk()
         match status:
             case "succeeded in placing the disk":
@@ -152,7 +157,7 @@ def main() -> int:
         clear_console()
         print(convert_board_into_str(cursor, **render_option))
         print(message)
-        time.sleep(2.0)
+        time.sleep(1.0)
 
     return 0
 
