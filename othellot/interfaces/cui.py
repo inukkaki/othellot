@@ -88,7 +88,8 @@ def convert_board_into_str(cursor: Cursor, **kwargs) -> str:
 
     There is an argument that ``**kwargs`` supports: ``show_neighbors``,
     which determines whether this function renders the neighbors of a grid
-    pointed by the cursor.
+    pointed by the cursor; ``show_cursor``, which determines whether the
+    cursor is rendered on the board.
 
     """
     if not isinstance(cursor, Cursor):
@@ -122,8 +123,9 @@ def convert_board_into_str(cursor: Cursor, **kwargs) -> str:
                 packed_str = mapping.get("unknown").copy()
 
             # Render the cursor
-            if (i, j) == cursor.pos.to_tuple():
-                packed_str.append("bg_white")
+            if kwargs.get("show_cursor"):
+                if (i, j) == cursor.pos.to_tuple():
+                    packed_str.append("bg_white")
 
             # Render neighbors (optional)
             if (i, j) in neighborhood:

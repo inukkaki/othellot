@@ -61,7 +61,7 @@ def main() -> int:
     agent = agents.Kijitora(board, opponents_disk)
 
     # Prepare instances necessary for games
-    render_option = {"show_neighbors": False}
+    render_option = {"show_neighbors": False, "show_cursor": True}
     def reverse(key) -> None:
         render_option[key] = not render_option.get(key)
 
@@ -80,6 +80,8 @@ def main() -> int:
         board.suggest_available_grids(cursor.disk_color)
 
         # Player's turn
+        render_option["show_cursor"] = True
+
         message = f"operate ({cursor.disk_color})"
         while not is_skipped_first:
             cursor_pos = cursor.pos.to_tuple()
@@ -123,6 +125,8 @@ def main() -> int:
         is_skipped_first = False
 
         # Opponent's turn
+        render_option["show_cursor"] = False
+
         board.suggest_available_grids(agent.disk_color)
         clear_console()
         print(convert_board_into_str(cursor, **render_option))
